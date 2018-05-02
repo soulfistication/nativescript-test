@@ -1,39 +1,36 @@
 import { Observable } from 'data/observable';
+import * as http from 'http';
+import { ObservableArray } from 'tns-core-modules/data/observable-array/observable-array';
 
-export class HelloWorldModel extends Observable {
+export class ViewModel extends Observable {
 
-    private _counter: number;
-    private _message: string;
+    posts: ObservableArray<any>
+
+    message: string = "Hello nodevember.";
 
     constructor() {
         super();
 
-        // Initialize default values.
-        this._counter = 32;
-        this.updateMessage();
+        this.posts = new ObservableArray([]);
+
+        this.getPosts();
     }
 
-    get message(): string {
-        return this._message;
-    }
-    
-    set message(value: string) {
-        if (this._message !== value) {
-            this._message = value;
-            this.notifyPropertyChange('message', value)
-        }
-    }
+    private getPosts() {
+        http.getJSON("https://www.reddit.com/r/aww.json")
+            .then((response: any) => {
 
-    public onTap() {
-        this._counter--;
-        this.updateMessage();
-    }
+                var children = <Array<any>>response.data.children;
 
-    private updateMessage() {
-        if (this._counter <= 0) {
-            this.message = 'Hoorraaay! You unlocked the NativeScript clicker achievement!';
-        } else {
-            this.message = `${this._counter} taps left`;
-        }
+                children.forEach( item => {
+                    this.posts.push({
+                        title: item.data.title,
+                        thumbnail: item.data.thumbnail,
+                        user: item.data.author,
+                        votes: item.data.ups,
+                        url: item.data.url
+                    })
+                });
+            });
     }
 }
