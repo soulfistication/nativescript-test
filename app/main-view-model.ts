@@ -6,8 +6,6 @@ export class ViewModel extends Observable {
 
     posts: ObservableArray<any>
 
-    message: string = "Hello nodevember.";
-
     constructor() {
         super();
 
